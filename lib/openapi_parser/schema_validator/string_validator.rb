@@ -25,6 +25,9 @@ class OpenAPIParser::SchemaValidator
       value, err = validate_uuid_format(value, schema)
       return [nil, err] if err
 
+      value, err = validate_uri_format(value, schema)
+      return [nil, err] if err
+
       value, err = validate_date_format(value, schema)
       return [nil, err] if err
 
@@ -69,6 +72,19 @@ class OpenAPIParser::SchemaValidator
         return [value, nil] if value.match(/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/)
 
         return [nil, OpenAPIParser::InvalidUUIDFormat.new(value, schema.object_reference)]
+      end
+
+      def validate_uri_format(value, schema)
+        return [value, nil] unless schema.format =~ /\A(?:[a-zA-Z_]+_)?uri\z/
+        if schema.format.end_with?("_uri")
+          protocols = schema.format.split("_")[...-1]
+          protocols << "https" if protocols.any?("http")
+          protocols.uniq!
+        end
+
+        return [value, nil] if value.match(/\A#{URI.regexp(protocols)}\z/)
+
+        return [nil, OpenAPIParser::InvalidURIFormat.new(value, schema.object_reference, protocols)]
       end
 
       def validate_date_format(value, schema)

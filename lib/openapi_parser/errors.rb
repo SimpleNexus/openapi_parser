@@ -195,6 +195,19 @@ module OpenAPIParser
     end
   end
 
+  class InvalidURIFormat < OpenAPIError
+    def initialize(value, reference, protocols=nil)
+      super(reference)
+      @value = value
+      @protocols = protocols
+    end
+
+    def message
+      protocol_text = "#{[@protocols].flatten.join("/")} " unless @protocols.nil? || @protocols.empty?
+      "#{@reference} Value: #{@value.inspect} is not conformant with #{protocol_text}URI format"
+    end
+  end
+
   class InvalidDateFormat < OpenAPIError
     def initialize(value, reference)
       super(reference)
