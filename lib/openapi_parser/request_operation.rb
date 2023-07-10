@@ -48,7 +48,6 @@ class OpenAPIParser::RequestOperation
   # @param [Hash] params
   # @param [OpenAPIParser::SchemaValidator::Options] options
   def validate_request_body(content_type, params, options = nil)
-    byebug
     options ||= config.request_body_options
     operation_object&.validate_request_body(content_type, params, options)
   end
