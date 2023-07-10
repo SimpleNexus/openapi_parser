@@ -2,8 +2,8 @@ class OpenAPIParser::SchemaValidator
   class StringValidator < Base
     include ::OpenAPIParser::SchemaValidator::Enumable
 
-    def initialize(validator, coerce_value, datetime_coerce_class)
-      super(validator, coerce_value)
+    def initialize(validator, coerce_value, datetime_coerce_class, validate_read_only, validate_write_only)
+      super(validator, coerce_value, validate_read_only, validate_write_only)
       @datetime_coerce_class = datetime_coerce_class
     end
 
