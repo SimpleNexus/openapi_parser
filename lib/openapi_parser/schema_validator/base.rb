@@ -1,8 +1,10 @@
 class OpenAPIParser::SchemaValidator
   class Base
-    def initialize(validatable, coerce_value)
+    def initialize(validatable, coerce_value, validate_read_only=true, validate_write_only=true)
       @validatable = validatable
       @coerce_value = coerce_value
+      @validate_read_only = validate_read_only
+      @validate_write_only = validate_write_only
     end
 
     attr_reader :validatable

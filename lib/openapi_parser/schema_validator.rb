@@ -54,6 +54,8 @@ class OpenAPIParser::SchemaValidator
     @schema = schema
     @coerce_value = options.coerce_value
     @datetime_coerce_class = options.datetime_coerce_class
+    @validate_read_only = options.validate_read_only
+    @validate_write_only = options.validate_write_only
   end
 
   # execute validate data
@@ -119,39 +121,39 @@ class OpenAPIParser::SchemaValidator
     end
 
     def string_validator
-      @string_validator ||= OpenAPIParser::SchemaValidator::StringValidator.new(self, @coerce_value, @datetime_coerce_class)
+      @string_validator ||= OpenAPIParser::SchemaValidator::StringValidator.new(self, @coerce_value, @datetime_coerce_class, @validate_read_only, @validate_write_only)
     end
 
     def integer_validator
-      @integer_validator ||= OpenAPIParser::SchemaValidator::IntegerValidator.new(self, @coerce_value)
+      @integer_validator ||= OpenAPIParser::SchemaValidator::IntegerValidator.new(self, @coerce_value, @validate_read_only, @validate_write_only)
     end
 
     def float_validator
-      @float_validator ||= OpenAPIParser::SchemaValidator::FloatValidator.new(self, @coerce_value)
+      @float_validator ||= OpenAPIParser::SchemaValidator::FloatValidator.new(self, @coerce_value, @validate_read_only, @validate_write_only)
     end
 
     def boolean_validator
-      @boolean_validator ||= OpenAPIParser::SchemaValidator::BooleanValidator.new(self, @coerce_value)
+      @boolean_validator ||= OpenAPIParser::SchemaValidator::BooleanValidator.new(self, @coerce_value, @validate_read_only, @validate_write_only)
     end
 
     def object_validator
-      @object_validator ||= OpenAPIParser::SchemaValidator::ObjectValidator.new(self, @coerce_value)
+      @object_validator ||= OpenAPIParser::SchemaValidator::ObjectValidator.new(self, @coerce_value, @validate_read_only, @validate_write_only)
     end
 
     def array_validator
-      @array_validator ||= OpenAPIParser::SchemaValidator::ArrayValidator.new(self, @coerce_value)
+      @array_validator ||= OpenAPIParser::SchemaValidator::ArrayValidator.new(self, @coerce_value, @validate_read_only, @validate_write_only)
     end
 
     def any_of_validator
-      @any_of_validator ||= OpenAPIParser::SchemaValidator::AnyOfValidator.new(self, @coerce_value)
+      @any_of_validator ||= OpenAPIParser::SchemaValidator::AnyOfValidator.new(self, @coerce_value, @validate_read_only, @validate_write_only)
     end
 
     def all_of_validator
-      @all_of_validator ||= OpenAPIParser::SchemaValidator::AllOfValidator.new(self, @coerce_value)
+      @all_of_validator ||= OpenAPIParser::SchemaValidator::AllOfValidator.new(self, @coerce_value, @validate_read_only, @validate_write_only)
     end
 
     def one_of_validator
-      @one_of_validator ||= OpenAPIParser::SchemaValidator::OneOfValidator.new(self, @coerce_value)
+      @one_of_validator ||= OpenAPIParser::SchemaValidator::OneOfValidator.new(self, @coerce_value, @validate_read_only, @validate_write_only)
     end
 
     def nil_validator
