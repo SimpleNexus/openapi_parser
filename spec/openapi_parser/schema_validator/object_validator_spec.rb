@@ -19,8 +19,79 @@ RSpec.describe OpenAPIParser::SchemaValidator::ObjectValidator do
   it 'shows error when required key is absent' do
     schema = @root.components.schemas['object_with_required_but_no_properties']
     _value, e = *@validator.coerce_and_validate({}, schema)
-
     expect(e&.message).to match('.* missing required parameters: id')
+  end
+end
+
+RSpec.describe OpenAPIParser::SchemaValidator::ObjectValidator do
+  before do
+    @validator = OpenAPIParser::SchemaValidator::ObjectValidator.new(nil, nil, false)
+    @root = OpenAPIParser.parse(
+      'openapi' => '3.0.0',
+      'components' => {
+        'schemas' => {
+          'object_with_required_read_write' => {
+            'type' => 'object',
+            'required' => ['test', 'test2', 'test3'],
+            'properties' => {
+              'test' => {
+                "type" => "string",
+                "readOnly" => true
+              },
+              'test2' => {
+                "type" => "string",
+              },
+              'test3' => {
+                "type" => "string",
+                "writeOnly" => true
+              }
+            }
+          },
+        },
+      },
+    )
+  end
+
+  it 'shows error when required key is absent' do
+    schema = @root.components.schemas['object_with_required_read_write']
+    _value, e = *@validator.coerce_and_validate({}, schema)
+    expect(e&.message).to match('.* missing required parameters: test2, test3')
+  end
+end
+
+RSpec.describe OpenAPIParser::SchemaValidator::ObjectValidator do
+  before do
+    @validator = OpenAPIParser::SchemaValidator::ObjectValidator.new(nil, nil, true, false)
+    @root = OpenAPIParser.parse(
+      'openapi' => '3.0.0',
+      'components' => {
+        'schemas' => {
+          'object_with_required_read_write_only' => {
+            'type' => 'object',
+            'required' => ['test', 'test2', 'test3'],
+            'properties' => {
+              'test' => {
+                "type" => "string",
+                "readOnly" => true
+              },
+              'test2' => {
+                "type" => "string",
+              },
+              'test3' => {
+                "type" => "string",
+                "writeOnly" => true
+              }
+            }
+          },
+        },
+      },
+    )
+  end
+
+  it 'shows error when required key is absent' do
+    schema = @root.components.schemas['object_with_required_read_write_only']
+    _value, e = *@validator.coerce_and_validate({}, schema)
+    expect(e&.message).to match('.* missing required parameters: test, test2')
   end
 end
 
