@@ -17,6 +17,7 @@ class OpenAPIParser::SchemaValidator
       @datetime_coerce_class = datetime_coerce_class
       @validate_header = validate_header
       @validate_read_only = false
+      @validate_write_only = true
     end
   end
 
@@ -30,6 +31,7 @@ class OpenAPIParser::SchemaValidator
       @strict = strict
       @validate_header = validate_header
       @validate_write_only = false
+      @validate_read_only = true
     end
   end
 end

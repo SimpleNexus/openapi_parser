@@ -104,6 +104,30 @@ RSpec.describe OpenAPIParser::SchemaValidator do
       end
     end
 
+    it 'required params with readOnly' do
+      object = {
+        'string_3' => 'str',
+        'integer_3' => 1,
+        'boolean_3' => true,
+        'number_3' => 0.1,
+      }
+
+      object.keys.each do |key|
+        deleted_object = object.reject { |k, _v| k == key }
+        params = { 'object_3' => deleted_object }
+        if key == "boolean_3" || key == "number_3"
+          expect { request_operation.validate_request_body(content_type, params) }.to raise_error do |e|
+            expect(e).to be_kind_of(OpenAPIParser::NotExistRequiredKey)
+            expect(e.message).to end_with("missing required parameters: #{key}")
+          end
+        else
+          ret = request_operation.validate_request_body(content_type, params)
+          expected_obj = { "object_3" => {'string_3' => "str", "integer_3" => 1, "boolean_3" => true, "number_3" => 0.1}.reject { |k, _| k == key }}
+          expect(ret).to eq(expected_obj)
+        end
+      end
+    end
+
     context 'nested required params' do
       subject { request_operation.validate_request_body(content_type, { 'required_object' => required_object }) }
 

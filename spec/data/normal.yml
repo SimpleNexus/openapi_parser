@@ -289,6 +289,25 @@ paths:
                       type: boolean
                     number_2:
                       type: number
+                object_3:
+                  type: object
+                  required:
+                    - string_3
+                    - integer_3
+                    - boolean_3
+                    - number_3
+                  properties:
+                    string_3:
+                      type: string
+                      readOnly: true
+                    integer_3:
+                      type: integer
+                      readOnly: true
+                    boolean_3:
+                      type: boolean
+                      writeOnly: true
+                    number_3:
+                      type: number
                 required_object:
                   type: object
                   required:
