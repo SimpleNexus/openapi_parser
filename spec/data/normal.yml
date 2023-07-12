@@ -292,22 +292,26 @@ paths:
                 object_3:
                   type: object
                   required:
-                    - string_3
-                    - integer_3
-                    - boolean_3
-                    - number_3
+                    - read_only_required
+                    - write_only_required
+                    - required_string
                   properties:
-                    string_3:
+                    read_only_required:
                       type: string
                       readOnly: true
-                    integer_3:
+                    read_only_not_required:
                       type: integer
                       readOnly: true
-                    boolean_3:
+                    write_only_required:
                       type: boolean
                       writeOnly: true
-                    number_3:
+                    write_only_not_required:
                       type: number
+                      writeOnly: true
+                    required_string:
+                      type: string
+                    not_required_string:
+                      type: string
                 required_object:
                   type: object
                   required:
@@ -664,6 +668,7 @@ components:
                 type: number
           nested_no_coercer_object:
             type: object
+            additionalProperties: true
           nested_coercer_array:
             type: array
             items:
@@ -678,6 +683,7 @@ components:
             type: array
             items:
               type: object
+              additionalProperties: true
     one_of_object1:
       type: object
       required:

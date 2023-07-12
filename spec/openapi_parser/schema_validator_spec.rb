@@ -104,27 +104,64 @@ RSpec.describe OpenAPIParser::SchemaValidator do
       end
     end
 
-    it 'required params with readOnly' do
-      object = {
-        'string_3' => 'str',
-        'integer_3' => 1,
-        'boolean_3' => true,
-        'number_3' => 0.1,
-      }
+    context 'required readOnly properties' do
+      it 'does not require them' do
+        params = {"object_3" => {
+          'required_string' => 'str',
+          'write_only_required' => true,
+          'not_required_string' => 'str'
+        }}
 
-      object.keys.each do |key|
-        deleted_object = object.reject { |k, _v| k == key }
-        params = { 'object_3' => deleted_object }
-        if key == "boolean_3" || key == "number_3"
-          expect { request_operation.validate_request_body(content_type, params) }.to raise_error do |e|
-            expect(e).to be_kind_of(OpenAPIParser::NotExistRequiredKey)
-            expect(e.message).to end_with("missing required parameters: #{key}")
-          end
-        else
-          ret = request_operation.validate_request_body(content_type, params)
-          expected_obj = { "object_3" => {'string_3' => "str", "integer_3" => 1, "boolean_3" => true, "number_3" => 0.1}.reject { |k, _| k == key }}
-          expect(ret).to eq(expected_obj)
+        ret = request_operation.validate_request_body(content_type, params)
+        expected_obj = { "object_3" => {'required_string' => "str", "write_only_required" => true, "not_required_string" => 'str'}}
+        expect(ret).to eq(expected_obj)
+      end
+    end
+
+    context 'required writeOnly properties' do
+      it 'does require them' do
+        params = {"object_3" => {
+          'required_string' => 'str',
+          'write_only_not_required' => 0,
+          'not_required_string' => 'str'
+        }}
+
+        expect { request_operation.validate_request_body(content_type, params) }.to raise_error do |e|
+          expect(e).to be_kind_of(OpenAPIParser::NotExistRequiredKey)
+          expect(e.message).to end_with("missing required parameters: write_only_required")
         end
+      end
+    end
+
+    context 'readOnly properties' do
+      it 'does not allow them in the request body' do
+        params = {"object_3" => {
+          'required_string' => 'str',
+          'write_only_not_required' => 0,
+          'write_only_required' => true,
+          'not_required_string' => 'str',
+          'read_only_not_required' => 1
+        }}
+
+        expect { request_operation.validate_request_body(content_type, params) }.to raise_error do |e|
+          expect(e).to be_kind_of(OpenAPIParser::NotExistPropertyDefinition)
+          expect(e.message).to end_with("does not define properties: read_only_not_required")
+        end
+      end
+    end
+
+    context 'writeOnly properties' do
+      it 'allows all writeOnly properties' do
+        params = {"object_3" => {
+          'required_string' => 'str',
+          'write_only_not_required' => 0,
+          'write_only_required' => true,
+          'not_required_string' => 'str'
+        }}
+
+        ret = request_operation.validate_request_body(content_type, params)
+        expected_obj = { "object_3" => {'required_string' => "str", "write_only_not_required" => 0, "write_only_required" => true, "not_required_string" => 'str'}}
+        expect(ret).to eq(expected_obj)
       end
     end
 

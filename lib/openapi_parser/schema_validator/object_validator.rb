@@ -7,19 +7,22 @@ class OpenAPIParser::SchemaValidator
     def coerce_and_validate(value, schema, parent_all_of: false, parent_discriminator_schemas: [], discriminator_property_name: nil)
       return OpenAPIParser::ValidateError.build_error_result(value, schema) unless value.kind_of?(Hash)
 
-      properties = schema.properties || {}
+      properties = schema.properties.dup || {}
       
       required_set = schema.required ? schema.required.to_set : Set.new
       # If validate read only is false, remove read only properties from the required set.
       unless @validate_read_only
         read_only_set = properties.map{ |k, v| v.read_only ? k : nil}.compact.to_set
         required_set -= read_only_set
+        properties.delete_if { |_, v| v.read_only }
       end
       # If validate write only is false, remove write only properties from the required set.
       unless @validate_write_only
         write_only_set = properties.map{ |k, v| v.write_only ? k : nil}.compact.to_set
         required_set -= write_only_set
+        properties.delete_if{ |_, v| v.write_only }
       end
+
       remaining_keys = value.keys
 
       if schema.discriminator && !parent_discriminator_schemas.include?(schema)

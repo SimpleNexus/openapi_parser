@@ -355,7 +355,10 @@ RSpec.describe OpenAPIParser::Schemas::RequestBody do
         end
         let(:params) { { 'query_string' => 'query', 'unknown' => 1 } }
 
-        it { expect(subject).to eq({ 'query_string' => 'query', 'unknown' => 1 }) }
+        # We've changed the default behavior to block additiona_properties
+        it 'blocks additional properties' do
+          expect{subject}.to raise_error OpenAPIParser::NotExistPropertyDefinition
+        end
       end
 
       context 'additional_properties = false' do
