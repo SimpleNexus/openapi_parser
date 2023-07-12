@@ -26,7 +26,7 @@ module OpenAPIParser::Schemas
         return nil
       end
 
-      options = ::OpenAPIParser::SchemaValidator::Options.new # response validator not support any options
+      options = ::OpenAPIParser::SchemaValidator::Options.new(validate_write_only: false, validate_read_only: true) # response validator not support any options
       media_type.validate_parameter(response_body.response_data, options)
     end
 
