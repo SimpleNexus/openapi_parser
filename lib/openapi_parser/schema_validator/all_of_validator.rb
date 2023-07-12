@@ -18,7 +18,10 @@ class OpenAPIParser::SchemaValidator
         )
 
         if s.type == "object"
-          remaining_keys               -= (s.properties || {}).keys
+          properties = s.properties.dup || {}
+          properties.delete_if { |_, v| v.read_only } unless @validate_read_only
+          properties.delete_if { |_, v| v.write_only } unless @validate_write_only
+          remaining_keys               -= (properties || {}).keys
           nested_additional_properties = true if s.additional_properties
         else
           # If this is not allOf having array of objects inside, but e.g. having another anyOf/oneOf nested

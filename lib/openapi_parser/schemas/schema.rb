@@ -111,7 +111,8 @@ module OpenAPIParser::Schemas
     # additional_properties have default value
     # we should add default value feature in openapi_attr_object method, but we need temporary fix so override attr_reader
     def additional_properties
-      @additional_properties.nil? ? true : @additional_properties
+      # We always want to block additional properties unless they have been explicitly allowed.
+      @additional_properties.nil? ? false : @additional_properties
     end
   end
 end
