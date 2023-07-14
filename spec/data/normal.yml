@@ -291,6 +291,7 @@ paths:
                       type: number
                 object_3:
                   type: object
+                  additionalProperties: false
                   required:
                     - read_only_required
                     - write_only_required

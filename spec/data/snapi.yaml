@@ -1,0 +1,1934 @@
+---
+info:
+  title: SNAPI
+  description: All routes are currently in development and should be treated as such
+  version: '1.0'
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+- url: https://api.simplenexus.com
+  description: Prod server
+security:
+- requestAuthorizer: []
+openapi: 3.0.0
+paths:
+  "/sn_api/v2/lookups/{lookup_group}":
+    get:
+      tags:
+      - Lookups
+      operationId: lookups-index
+      parameters:
+      - name: lookup_group
+        description: The group of lookup records being retrieved
+        required: true
+        in: path
+        schema:
+          type: string
+      - "$ref": "#/components/parameters/page_param"
+      - "$ref": "#/components/parameters/page_size_param"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/LookupPagination"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve all lookups of a given group
+      summary: Retrieve all lookups of a given group
+      x-api-resource:
+        class: SnApi::V2::Lookups::LookupResource
+        method: index
+  "/sn_api/v2/lookups/{lookup_group}/{lookup}":
+    get:
+      tags:
+      - Lookups
+      operationId: lookups-show
+      parameters:
+      - name: lookup
+        description: The lookup record to retrieve
+        required: true
+        in: path
+        schema:
+          type: string
+      - name: lookup_group
+        description: The group for the lookup record being retrieved
+        required: true
+        in: path
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Lookup"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve a lookup record
+      summary: Retrieve a lookup record
+      x-api-resource:
+        class: SnApi::V2::Lookups::LookupResource
+        method: show
+  "/sn_api/v2/webhooks":
+    post:
+      tags:
+      - Webhooks
+      operationId: webhooks-create
+      parameters: []
+      responses:
+        '201':
+          description: Created webhook
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Webhook"
+        '409':
+          description: Webhook already exists for the given URL
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSet"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Create a new webhook record
+      summary: Create a new webhook record
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookResource
+        method: create
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/WebhookPostBody"
+    get:
+      tags:
+      - Webhooks
+      operationId: webhooks-index
+      parameters:
+      - "$ref": "#/components/parameters/page_param"
+      - "$ref": "#/components/parameters/page_size_param"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WebhookPagination"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve all webhook records
+      summary: Retrieve all webhook records
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookResource
+        method: index
+  "/sn_api/v2/webhooks/{webhook_id}":
+    get:
+      tags:
+      - Webhooks
+      operationId: webhooks-show
+      parameters:
+      - name: webhook_id
+        description: The webhook id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Webhook"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve a webhook record
+      summary: Retrieve a webhook record
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookResource
+        method: show
+    patch:
+      tags:
+      - Webhooks
+      operationId: webhooks-update
+      parameters:
+      - name: webhook_id
+        description: The webhook id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: Updated webhook
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Update a webhook record
+      summary: Update a webhook record
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookResource
+        method: update
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/WebhookPatchBody"
+    delete:
+      tags:
+      - Webhooks
+      operationId: webhooks-destroy
+      parameters:
+      - name: webhook_id
+        description: The webhook id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: Deleted webhook
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Delete a webhook record
+      summary: Delete a webhook record
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookResource
+        method: destroy
+  "/sn_api/v2/webhooks/{webhook_id}/subscriptions":
+    post:
+      tags:
+      - Webhook subscriptions
+      operationId: webhook_subscriptions-create
+      parameters:
+      - name: webhook_id
+        description: The webhook ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '201':
+          description: Subscription created
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WebhookSubscription"
+        '409':
+          description: Webhook is already subscribed to event
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSet"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Create a subscription for a webhook (i.e. subscribes a webhook
+        to an event)
+      summary: Create a subscription for a webhook (i.e. subscribes a webhook to an
+        event)
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookSubscriptionResource
+        method: create
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/WebhookSubscriptionSaveBody"
+    get:
+      tags:
+      - Webhook subscriptions
+      operationId: webhook_subscriptions-index
+      parameters:
+      - name: webhook_id
+        description: The webhook ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - "$ref": "#/components/parameters/page_param"
+      - "$ref": "#/components/parameters/page_size_param"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WebhookSubscriptionPagination"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve all of a webhook's subscription records
+      summary: Retrieve all of a webhook's subscription records
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookSubscriptionResource
+        method: index
+  "/sn_api/v2/webhooks/{webhook_id}/subscriptions/{subscription_id}":
+    get:
+      tags:
+      - Webhook subscriptions
+      operationId: webhook_subscriptions-show
+      parameters:
+      - name: subscription_id
+        description: The subscription ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - name: webhook_id
+        description: The webhook ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/WebhookSubscription"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve a webhook's subscription record
+      summary: Retrieve a webhook's subscription record
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookSubscriptionResource
+        method: show
+    patch:
+      tags:
+      - Webhook subscriptions
+      operationId: webhook_subscriptions-update
+      parameters:
+      - name: subscription_id
+        description: The subscription ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - name: webhook_id
+        description: The webhook ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: Subscription updated
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '409':
+          description: Webhook is already subscribed to event
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSet"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Update a webhook's subscription record
+      summary: Update a webhook's subscription record
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookSubscriptionResource
+        method: update
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/WebhookSubscriptionSaveBody"
+    delete:
+      tags:
+      - Webhook subscriptions
+      operationId: webhook_subscriptions-destroy
+      parameters:
+      - name: subscription_id
+        description: The subscription ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - name: webhook_id
+        description: The webhook ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: Subscription removed
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Delete a webhook's subscription record (i.e. unsubscribes a webhook
+        from an event)
+      summary: Delete a webhook's subscription record (i.e. unsubscribes a webhook
+        from an event)
+      x-api-resource:
+        class: SnApi::V2::Webhooks::WebhookSubscriptionResource
+        method: destroy
+  "/sn_api/v2/companies/{company_id}/licenses":
+    post:
+      tags:
+      - Company licenses
+      operationId: company_licenses-create
+      parameters:
+      - name: company_id
+        description: The company id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '201':
+          description: Successfully created license
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/License"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Create a company license
+      summary: Create a company license
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyLicenseResource
+        method: create
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/LicenseCreateBody"
+  "/sn_api/v2/companies/{company_id}/licenses/{license_id}":
+    get:
+      tags:
+      - Company licenses
+      operationId: company_licenses-show
+      parameters:
+      - name: company_id
+        description: The company id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - name: license_id
+        description: State license id
+        required: true
+        in: path
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/License"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Lists a specific company’s state license
+      summary: Lists a specific company’s state license
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyLicenseResource
+        method: show
+  "/sn_api/v2/companies/{company_id}/links":
+    post:
+      tags:
+      - Company links
+      operationId: company_links-create
+      parameters:
+      - name: company_id
+        description: The company id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '201':
+          description: Created link
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Link"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Create a company link
+      summary: Create a company link
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyLinkResource
+        method: create
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/LinkCreateBody"
+    get:
+      tags:
+      - Company links
+      operationId: company_links-index
+      parameters:
+      - name: company_id
+        description: The company id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - "$ref": "#/components/parameters/page_param"
+      - "$ref": "#/components/parameters/page_size_param"
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/LinkPagination"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve company links
+      summary: Retrieve company links
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyLinkResource
+        method: index
+  "/sn_api/v2/companies/{company_id}/links/{link_id}":
+    get:
+      tags:
+      - Company links
+      operationId: company_links-show
+      parameters:
+      - name: company_id
+        description: The company id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - name: link_id
+        description: The link ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Link"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve a company link
+      summary: Retrieve a company link
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyLinkResource
+        method: show
+    patch:
+      tags:
+      - Company links
+      operationId: company_links-update
+      parameters:
+      - name: company_id
+        description: The company id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - name: link_id
+        description: The link ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: Updated link
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Update a company link
+      summary: Update a company link
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyLinkResource
+        method: update
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/LinkUpdateBody"
+    delete:
+      tags:
+      - Company links
+      operationId: company_links-destroy
+      parameters:
+      - name: company_id
+        description: The company id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - name: link_id
+        description: The link ID
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: Deleted link
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Delete a company link
+      summary: Delete a company link
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyLinkResource
+        method: destroy
+  "/sn_api/v2/companies/{company_id}":
+    get:
+      tags:
+      - Companies
+      operationId: companies-show
+      parameters:
+      - name: company_id
+        description: The company id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Company"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve a company record
+      summary: Retrieve a company record
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyResource
+        method: show
+    patch:
+      tags:
+      - Companies
+      operationId: companies-update
+      parameters:
+      - name: company_id
+        description: The company id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Update a company record
+      summary: Update a company record
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyResource
+        method: update
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Company"
+  "/sn_api/v2/companies/{company_id}/images/{image_key}":
+    put:
+      tags:
+      - Companies
+      operationId: companies-update_image
+      parameters:
+      - name: company_id
+        description: The company id.
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - name: image_key
+        description: The image to be updated.
+        required: true
+        in: path
+        schema:
+          type: string
+          enum:
+          - logo
+          - app_icon
+          - app_homepage_logo
+      responses:
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: |-
+        Update a company's image.
+        logo should be 1000x313
+        app_icon should be 100x100
+        app_homepage_logo should be 208x32
+      summary: Update a company's image
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyResource
+        method: update_image
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CompanyImageUpdateBody"
+    delete:
+      tags:
+      - Companies
+      operationId: companies-destroy_image
+      parameters:
+      - name: company_id
+        description: The company id.
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      - name: image_key
+        description: The image to be deleted.
+        required: true
+        in: path
+        schema:
+          type: string
+          enum:
+          - logo
+          - app_icon
+          - app_homepage_logo
+      responses:
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Delete a company's image
+      summary: Delete a company's image
+      x-api-resource:
+        class: SnApi::V2::Companies::CompanyResource
+        method: destroy_image
+  "/sn_api/v2/regions/{region_id}":
+    get:
+      tags:
+      - Regions
+      operationId: regions-show
+      parameters:
+      - name: region_id
+        description: The region_id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Region"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Retrieve a specific region
+      summary: Retrieve a specific region
+      x-api-resource:
+        class: SnApi::V2::Regions::RegionResource
+        method: show
+    patch:
+      tags:
+      - Regions
+      operationId: regions-update
+      parameters:
+      - name: region_id
+        description: The region id.
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Update a region
+      summary: Update a region
+      x-api-resource:
+        class: SnApi::V2::Regions::RegionResource
+        method: update
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Region"
+    delete:
+      tags:
+      - Regions
+      operationId: regions-destroy
+      parameters:
+      - name: region_id
+        description: The region id
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Delete a region
+      summary: Delete a region
+      x-api-resource:
+        class: SnApi::V2::Regions::RegionResource
+        method: destroy
+  "/sn_api/v2/regions":
+    post:
+      tags:
+      - Regions
+      operationId: regions-create
+      parameters: []
+      responses:
+        '201':
+          description: Created region
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Region"
+        '409':
+          description: Region already exists for the company for the given name
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorSet"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Create a new region record
+      summary: Create a new region record
+      x-api-resource:
+        class: SnApi::V2::Regions::RegionResource
+        method: create
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Region"
+  "/sn_api/v2/regions/{region_id}/images/{image_key}":
+    delete:
+      tags:
+      - Regions
+      operationId: regions-destroy_image
+      parameters:
+      - name: image_key
+        description: The image to be deleted.
+        required: true
+        in: path
+        schema:
+          type: string
+          enum:
+          - logo
+          - app_icon
+          - app_homepage_logo
+      - name: region_id
+        description: The region id.
+        required: true
+        in: path
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: No content
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/NoContent"
+        '400':
+          "$ref": "#/components/responses/BadRequestError"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '403':
+          "$ref": "#/components/responses/ForbiddenError"
+        '404':
+          "$ref": "#/components/responses/NotFoundError"
+        '500':
+          "$ref": "#/components/responses/InternalServerError"
+      description: Delete a region's image
+      summary: Delete a region's image
+      x-api-resource:
+        class: SnApi::V2::Regions::RegionResource
+        method: destroy_image
+tags:
+- name: Companies
+  description: Endpoints pertaining to companies
+- name: Company licenses
+  description: Endpoints pertaining to company licenses
+- name: Company links
+  description: Endpoints pertaining to company links
+- name: Lookup webhooks
+  description: Webhook events pertaining to lookup records
+- name: Lookups
+  description: Endpoints pertaining to lookup records
+- name: Regions
+  description: Endpoints pertaining to regions
+- name: Webhook subscriptions
+  description: Endpoints pertaining to webhook subscriptions
+- name: Webhooks
+  description: Endpoints pertaining to webhooks
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 123abc
+        status:
+          type: integer
+          example: 400
+        title:
+          type: string
+          example: title
+        detail:
+          type: string
+          example: detail
+      required:
+      - id
+      - status
+      - title
+      example:
+        id: 123abc
+        status: 400
+        title: The devil
+        detail: is in the detail
+    ErrorSet:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Error"
+      required:
+      - errors
+      example:
+        errors:
+        - id: 123abc
+          status: 400
+          title: The devil
+          detail: is in the detail
+    Lookup:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractModel"
+      - type: object
+        properties:
+          enum:
+            type: string
+          value:
+            type: string
+        required:
+        - enum
+        - value
+      description: A lookup record
+    LookupPagination:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractPagination"
+      - type: object
+        properties:
+          contents:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Lookup"
+        required:
+        - contents
+    AbstractCollection:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractModel"
+      - type: object
+        properties:
+          contents:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Item"
+            description: The contents for the collection
+        required:
+        - contents
+      additionalProperties: true
+    Item:
+      type: object
+      properties: {}
+      additionalProperties: true
+    AbstractModel:
+      type: object
+      properties:
+        _self:
+          type: string
+          description: The model's resource link to itself.
+          readOnly: true
+        _type:
+          type: string
+          description: The model's type.
+          readOnly: true
+        _links:
+          oneOf:
+          - "$ref": "#/components/schemas/AssociationLinks"
+          description: A list of links for the model's associations.
+          readOnly: true
+      required:
+      - _self
+      - _type
+      additionalProperties: false
+    AssociationLinks:
+      type: object
+      properties: {}
+      additionalProperties: true
+    AbstractPagination:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractCollection"
+      - type: object
+        properties:
+          first:
+            type: string
+            description: A link to the first page of the collection.
+          last:
+            type: string
+            description: A link to the last page of the collection.
+          next:
+            type: string
+            description: A link to the next page of the collection.
+          previous:
+            type: string
+            description: A link to the previous page of the collection.
+          total_pages:
+            type: integer
+            description: The total number of pages in the collection.
+          total:
+            type: integer
+            description: The total number of items in the collection.
+      additionalProperties: false
+    Address:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractModel"
+      - type: object
+        properties:
+          street1:
+            type: string
+            description: The street1.
+          street2:
+            type: string
+            description: The street2.
+          city:
+            type: string
+            description: The city.
+          state:
+            oneOf:
+            - "$ref": "#/components/schemas/StateCode"
+            - "$ref": "#/components/schemas/EmptyString"
+            description: The state.
+          zip:
+            type: string
+            description: The zip code.
+      description: An address record
+      additionalProperties: false
+    NoContent:
+      type: object
+      properties: {}
+      additionalProperties: false
+    Webhook:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractModel"
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: A unique identifier for the webhook record.
+          name:
+            type: string
+            description: The webhook's name.
+          url:
+            type: string
+            format: http_uri
+            description: The URL called when a webhook event has occurred.
+          secret:
+            type: string
+            description: The secret used to verify a request made to the webhook URL
+              is from a valid source (SimpleNexus).
+          created_at:
+            type: string
+            format: date-time
+            description: The webhook's created at timestamp.
+        required:
+        - id
+      description: Webhook record
+      additionalProperties: false
+    WebhookPagination:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractPagination"
+      - type: object
+        properties:
+          contents:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Webhook"
+        required:
+        - contents
+    WebhookPostBody:
+      type: object
+      properties:
+        url:
+          type: string
+          format: http_uri
+          description: The webhook's callback URL
+        name:
+          type: string
+          description: The webhook's name
+      required:
+      - url
+      - name
+      description: The available properties for creating a webhook
+      additionalProperties: false
+    WebhookPatchBody:
+      type: object
+      properties:
+        url:
+          type: string
+          format: http_uri
+          description: The webhook's callback URL
+        name:
+          type: string
+          description: The webhook's name
+      description: The available properties for updating a webhook
+      additionalProperties: false
+    WebhookSubscription:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractModel"
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: A unique identifier for the webhook subscription.
+          event:
+            oneOf:
+            - "$ref": "#/components/schemas/WebhookEventName"
+            description: The event that the webhook is subscribed to.
+          parameters_match_expression:
+            type: string
+            description: The JMESPath expression evaluated against a specific event's
+              parameters. If the expression is blank or it matches the parameters,
+              then the webhook is triggered. Otherwise, the event is ignored.
+            nullable: true
+        required:
+        - id
+        - event
+      description: Webhook subscription record
+      additionalProperties: false
+    WebhookSubscriptionPagination:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractPagination"
+      - type: object
+        properties:
+          contents:
+            type: array
+            items:
+              "$ref": "#/components/schemas/WebhookSubscription"
+        required:
+        - contents
+    WebhookSubscriptionSaveBody:
+      type: object
+      properties:
+        event:
+          oneOf:
+          - "$ref": "#/components/schemas/WebhookEventName"
+          description: The event being subscribed to
+      required:
+      - event
+      description: The available properties for creating or updating a webhook's subscription
+      additionalProperties: false
+    Company:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractModel"
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: A unique identifier for the company record.
+            readOnly: true
+          name:
+            type: string
+            description: The company's name.
+          address:
+            oneOf:
+            - "$ref": "#/components/schemas/Address"
+            description: The company's address.
+          nmls:
+            type: string
+            description: The nmls id.
+          support_email:
+            type: string
+            description: The support email.
+          tech_contact_email:
+            type: string
+            description: The tech contact email.
+          internal_phone:
+            type: string
+            description: The company's internal phone.
+          app_icon_url:
+            type: string
+            description: The app icon.
+            nullable: true
+          mobile_homepage_logo_url:
+            type: string
+            description: The mobile home logo.
+            nullable: true
+          logo_url:
+            type: string
+            description: The logo.
+            nullable: true
+          apple_store_url:
+            type: string
+            format: http_uri
+            description: The apple store URL.
+            nullable: true
+          google_play_store_url:
+            type: string
+            format: http_uri
+            description: The google play store URL.
+            nullable: true
+        required:
+        - id
+      description: Company record
+      additionalProperties: false
+    CompanyImageUpdateBody:
+      type: object
+      properties:
+        file:
+          type: string
+          description: The image data without metadata in base64 with a file type
+            of [jpg, jpeg, png].
+      required:
+      - file
+      description: The available properties for updating a company's image.
+      additionalProperties: false
+    License:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractModel"
+      - type: object
+        properties:
+          id:
+            type: integer
+            description: A unique identifier for the license record
+          state:
+            oneOf:
+            - "$ref": "#/components/schemas/StateCode"
+            - "$ref": "#/components/schemas/NationwideCode"
+            description: The license's state. If it's "US", the license is considered
+              nationwide.
+          license_number:
+            type: string
+            description: The license's number
+          license_message:
+            type: string
+            description: The license's message when displayed in UI
+        required:
+        - id
+      description: License record
+      additionalProperties: false
+    LicenseCreateBody:
+      type: object
+      properties:
+        state:
+          oneOf:
+          - "$ref": "#/components/schemas/StateCode"
+          description: The license's state
+        license_number:
+          type: string
+          description: The license's number
+        license_message:
+          type: string
+          description: The license's message when displayed in UI
+      required:
+      - state
+      - license_number
+      description: The available properties for creating a license
+      additionalProperties: false
+    Link:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractModel"
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: A unique identifier for the link record
+          link_type_id:
+            type: integer
+            description: The ID for the link's link type
+          link_text:
+            type: string
+            description: The link's text
+            nullable: true
+          url:
+            type: string
+            format: http_uri
+            description: The link's URL
+          is_social:
+            type: boolean
+            description: Whether or not the link is social
+          is_private:
+            type: boolean
+            description: Whether or not the link is private
+          launch_browser:
+            type: boolean
+            description: Whether or not the link should launch a browser when clicked
+        required:
+        - id
+        - url
+      description: Link record
+      additionalProperties: false
+    LinkPagination:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractPagination"
+      - type: object
+        properties:
+          contents:
+            type: array
+            items:
+              "$ref": "#/components/schemas/Link"
+        required:
+        - contents
+    LinkCreateBody:
+      type: object
+      properties:
+        link_type_id:
+          type: integer
+          description: The link type ID
+        link_text:
+          type: string
+          description: The link's text
+        url:
+          type: string
+          format: http_uri
+          description: The link's URL
+        is_private:
+          type: boolean
+          description: Whether or not the link is private (default is false)
+        launch_browser:
+          type: boolean
+          description: Whether or not the link should launch a browser when clicked
+            (default is false)
+      required:
+      - link_type_id
+      - link_text
+      - url
+      description: The available properties for creating a link
+      additionalProperties: false
+    LinkUpdateBody:
+      type: object
+      properties:
+        link_type_id:
+          type: integer
+          description: The link type ID
+        link_text:
+          type: string
+          description: The link's text
+        url:
+          type: string
+          format: http_uri
+          description: The link's URL
+        is_private:
+          type: boolean
+          description: Whether or not the link is private (default is false)
+        launch_browser:
+          type: boolean
+          description: Whether or not the link should launch a browser when clicked
+            (default is false)
+      description: The available properties for updating a link
+      additionalProperties: false
+    Region:
+      allOf:
+      - "$ref": "#/components/schemas/AbstractModel"
+      - type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: A unique identifier for the region record.
+            readOnly: true
+          name:
+            type: string
+            description: The region's name.
+          created_at:
+            type: string
+            format: date-time
+            description: Timestamp of when the region was created.
+            readOnly: true
+          updated_at:
+            type: string
+            format: date-time
+            description: Timestamp of when the region was last updated.
+            readOnly: true
+          address:
+            oneOf:
+            - "$ref": "#/components/schemas/Address"
+            description: The region's address.
+          nmls:
+            type: string
+            description: The nmls id.
+          website_url:
+            type: string
+            format: http_uri
+            description: The region's website.
+            nullable: true
+            readOnly: true
+          rss_feed_url:
+            type: string
+            format: http_uri
+            description: The region's rss URL.
+            nullable: true
+            readOnly: true
+          logo_url:
+            type: string
+            description: The logo.
+            nullable: true
+            readOnly: true
+          installation_base_url:
+            type: string
+            format: http_uri
+            description: The URL to install the region's app.
+            nullable: true
+            readOnly: true
+          app_icon_url:
+            type: string
+            description: The app icon.
+            nullable: true
+            readOnly: true
+          privacy_policy_url:
+            type: string
+            format: http_uri
+            description: The privacy policy.
+            nullable: true
+            readOnly: true
+          borrower_base_url:
+            type: string
+            format: http_uri
+            description: The borrower base URL.
+            nullable: true
+            readOnly: true
+          terms_of_use_url:
+            type: string
+            format: http_uri
+            description: The terms of use.
+            nullable: true
+            readOnly: true
+          custom_short_base_url:
+            type: string
+            format: http_uri
+            description: The custom URL.
+            nullable: true
+            readOnly: true
+          consumer_access_url:
+            type: string
+            format: http_uri
+            description: The consumer access URL.
+            nullable: true
+            readOnly: true
+        required:
+        - id
+        - name
+        - address
+        - nmls
+      description: Region record
+      additionalProperties: false
+    StateCode:
+      type: string
+      enum:
+      - AA
+      - AE
+      - AK
+      - AL
+      - AP
+      - AR
+      - AS
+      - AZ
+      - CA
+      - CO
+      - CT
+      - DC
+      - DE
+      - FL
+      - GA
+      - GU
+      - HI
+      - IA
+      - ID
+      - IL
+      - IN
+      - KS
+      - KY
+      - LA
+      - MA
+      - MD
+      - ME
+      - MI
+      - MN
+      - MO
+      - MP
+      - MS
+      - MT
+      - NC
+      - ND
+      - NE
+      - NH
+      - NJ
+      - NM
+      - NV
+      - NY
+      - OH
+      - OK
+      - OR
+      - PA
+      - PR
+      - RI
+      - SC
+      - SD
+      - TN
+      - TX
+      - UT
+      - VA
+      - VI
+      - VT
+      - WA
+      - WI
+      - WV
+      - WY
+      description: State abbreviated code
+    NationwideCode:
+      type: string
+      enum:
+      - US
+      description: Nationwide code
+    EmptyString:
+      type: string
+      enum:
+      - ''
+      description: An empty string
+    WebhookEventName:
+      type: string
+      enum:
+      - lookup_group_changed
+      description: Webhook event name
+  securitySchemes:
+    requestAuthorizer:
+      type: apiKey
+      name: Authorization
+      in: header
+  parameters:
+    page_param:
+      name: page
+      description: The page to retrieve.
+      required: false
+      in: query
+      schema:
+        type: integer
+    page_size_param:
+      name: page_size
+      description: The number of records returned in each page.
+      required: false
+      in: query
+      schema:
+        type: integer
+  responses:
+    BadRequestError:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/ErrorSet"
+    UnauthorizedError:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/ErrorSet"
+    ForbiddenError:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/ErrorSet"
+    NotFoundError:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/ErrorSet"
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/ErrorSet"
+x-webhooks:
+  lookup_group_changed:
+    post:
+      tags:
+      - Lookup webhooks
+      operationId: lookup_webhooks-lookup_group_changed
+      parameters:
+      - name: lookup_group
+        description: The name of the lookup group that was changed
+        required: false
+        in: query
+        schema:
+          type: string
+      responses:
+        default:
+          description: A webhook sent out when a lookup group has been modified within
+            the past hour
+      description: A webhook sent out when a lookup group has been modified within
+        the past hour
+      summary: A webhook sent out when a lookup group has been modified within the
+        past hour
+      x-api-resource:
+        class: SnApi::V2::Lookups::LookupWebhookGroup
+        method: lookup_group_changed
+      requestBody:
+        description: The event info particular to this event
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                event:
+                  type: string
+                  enum:
+                  - lookup_group_changed
+                event_info:
+                  type: object
+                  properties:
+                    lookup_group:
+                      type: string
+                  required:
+                  - lookup_group
+                id:
+                  type: string
+                  format: uuid
+                timestamp:
+                  type: string
+                  format: date-time
+                resource_link:
+                  type: string
+              required:
+              - event
+              - event_info
+              - id
+              - timestamp
+              - resource_link
+              additionalProperties: false
+x-tagGroups:
+- name:
+  tags:
+  - Lookups
+- name: Webhooks
+  tags:
+  - Webhooks
+  - Webhook subscriptions
+- name: Companies
+  tags:
+  - Company licenses
+  - Company links
+  - Companies
+- name: Regions
+  tags:
+  - Regions
