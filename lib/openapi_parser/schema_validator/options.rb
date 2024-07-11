@@ -10,14 +10,15 @@ class OpenAPIParser::SchemaValidator
     #   @return [Boolean] validate readOnly properties or not
     # @!attribute [r] validate_write_only
     #   @return [Boolean] validate writeOnly properties or not
-    attr_reader :coerce_value, :datetime_coerce_class, :validate_header, :validate_read_only, :validate_write_only
+    attr_reader :coerce_value, :datetime_coerce_class, :validate_header, :validate_read_only, :validate_write_only, :custom_string_formats
 
-    def initialize(coerce_value: nil, datetime_coerce_class: nil, validate_header: true, validate_read_only: false, validate_write_only: true)
+    def initialize(coerce_value: nil, datetime_coerce_class: nil, validate_header: true, validate_read_only: false, validate_write_only: true, custom_string_formats: {})
       @coerce_value = coerce_value
       @datetime_coerce_class = datetime_coerce_class
       @validate_header = validate_header
       @validate_read_only = validate_read_only
       @validate_write_only = validate_write_only
+      @custom_string_formats = custom_string_formats
     end
   end
 
@@ -32,6 +33,7 @@ class OpenAPIParser::SchemaValidator
       @validate_header = validate_header
       @validate_write_only = false
       @validate_read_only = true
+      @custom_string_formats = {}
     end
   end
 end

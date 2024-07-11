@@ -56,6 +56,7 @@ class OpenAPIParser::SchemaValidator
     @datetime_coerce_class = options.datetime_coerce_class
     @validate_read_only = options.validate_read_only
     @validate_write_only = options.validate_write_only
+    @custom_string_formats = options.custom_string_formats
   end
 
   # execute validate data
@@ -121,7 +122,7 @@ class OpenAPIParser::SchemaValidator
     end
 
     def string_validator
-      @string_validator ||= OpenAPIParser::SchemaValidator::StringValidator.new(self, @coerce_value, @datetime_coerce_class, @validate_read_only, @validate_write_only)
+      @string_validator ||= OpenAPIParser::SchemaValidator::StringValidator.new(self, @coerce_value, @datetime_coerce_class, @validate_read_only, @validate_write_only, @custom_string_formats)
     end
 
     def integer_validator

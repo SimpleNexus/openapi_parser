@@ -154,8 +154,8 @@ RSpec.describe OpenAPIParser::SchemaValidator::StringValidator do
 
         it do
           expect { subject }.to raise_error do |e|
-            expect(e).to be_kind_of(OpenAPIParser::InvalidEmailFormat)
-            expect(e.message).to end_with("email address format does not match value: \"not_email\"")
+            expect(e).to be_kind_of(OpenAPIParser::InvalidStringFormat)
+            expect(e.message).to end_with("Value: \"not_email\" is not conformant with email format")
           end
         end
       end
@@ -187,8 +187,8 @@ RSpec.describe OpenAPIParser::SchemaValidator::StringValidator do
 
         it do
           expect { subject }.to raise_error do |e|
-            expect(e).to be_kind_of(OpenAPIParser::InvalidUUIDFormat)
-            expect(e.message).to end_with("Value: \"not_uuid\" is not conformant with UUID format")
+            expect(e).to be_kind_of(OpenAPIParser::InvalidStringFormat)
+            expect(e.message).to end_with("Value: \"not_uuid\" is not conformant with uuid format")
           end
         end
       end
@@ -220,7 +220,7 @@ RSpec.describe OpenAPIParser::SchemaValidator::StringValidator do
 
         it do
           expect { subject }.to raise_error do |e|
-            expect(e).to be_kind_of(OpenAPIParser::InvalidDateFormat)
+            expect(e).to be_kind_of(OpenAPIParser::InvalidStringFormat)
             expect(e.message).to end_with("Value: \"not_date\" is not conformant with date format")
           end
         end
@@ -275,7 +275,7 @@ RSpec.describe OpenAPIParser::SchemaValidator::StringValidator do
 
         it do
           expect { subject }.to raise_error do |e|
-            expect(e).to be_kind_of(OpenAPIParser::InvalidDateTimeFormat)
+            expect(e).to be_kind_of(OpenAPIParser::InvalidStringFormat)
             expect(e.message).to end_with("Value: \"not_date\" is not conformant with date-time format")
           end
         end
@@ -286,8 +286,42 @@ RSpec.describe OpenAPIParser::SchemaValidator::StringValidator do
 
         it do
           expect { subject }.to raise_error do |e|
-            expect(e).to be_kind_of(OpenAPIParser::InvalidDateTimeFormat)
+            expect(e).to be_kind_of(OpenAPIParser::InvalidStringFormat)
             expect(e.message).to end_with("Value: \"2022-01-01T12:59:00.000\" is not conformant with date-time format")
+          end
+        end
+      end
+    end
+  end
+
+  describe 'validate custom string format' do
+    let(:options) { ::OpenAPIParser::SchemaValidator::Options.new(custom_string_formats: { "phone" => /\A[0-9]{10}\z/ }) }
+    subject { OpenAPIParser::SchemaValidator.validate(params, target_schema, options) }
+
+    let(:params) { {} }
+    let(:replace_schema) do
+      {
+        phone_str: {
+          type: 'string',
+          format: 'phone',
+        },
+      }
+    end
+
+    context 'correct' do
+      let(:params) { { 'phone_str' => '1231231234' } }
+      it { expect(subject).to eq({ 'phone_str' => '1231231234' }) }
+    end
+
+    context 'invalid' do
+      context 'error pattern' do
+        let(:value) { 'not_phone' }
+        let(:params) { { 'phone_str' => value } }
+
+        it do
+          expect { subject }.to raise_error do |e|
+            expect(e).to be_kind_of(OpenAPIParser::InvalidStringFormat)
+            expect(e.message).to end_with("Value: \"not_phone\" is not conformant with phone format")
           end
         end
       end

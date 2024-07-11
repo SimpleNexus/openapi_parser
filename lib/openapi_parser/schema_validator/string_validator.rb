@@ -2,123 +2,118 @@ class OpenAPIParser::SchemaValidator
   class StringValidator < Base
     include ::OpenAPIParser::SchemaValidator::Enumable
 
-    def initialize(validator, coerce_value, datetime_coerce_class, validate_read_only, validate_write_only)
+    def initialize(validator, coerce_value, datetime_coerce_class, validate_read_only, validate_write_only, custom_string_formats)
       super(validator, coerce_value, validate_read_only, validate_write_only)
       @datetime_coerce_class = datetime_coerce_class
+      @custom_string_formats = custom_string_formats || {}
     end
 
     def coerce_and_validate(value, schema, **_keyword_args)
       return OpenAPIParser::ValidateError.build_error_result(value, schema) unless value.kind_of?(String)
 
       value, err = check_enum_include(value, schema)
-      return [nil, err] if err
+      raise err if err
 
-      value, err = pattern_validate(value, schema)
-      return [nil, err] if err
+      value = validate_pattern(value, schema)
+      value = validate_max_min_length(value, schema)
+      value = validate_email_format(value, schema)
+      value = validate_uuid_format(value, schema)
+      value = validate_uri_format(value, schema)
+      value = validate_date_format(value, schema)
+      value = validate_datetime_format(value, schema)
+      value = validate_custom_string_formats(value, schema)
 
-      value, err = validate_max_min_length(value, schema)
-      return [nil, err] if err
-
-      value, err = validate_email_format(value, schema)
-      return [nil, err] if err
-
-      value, err = validate_uuid_format(value, schema)
-      return [nil, err] if err
-
-      value, err = validate_uri_format(value, schema)
-      return [nil, err] if err
-
-      value, err = validate_date_format(value, schema)
-      return [nil, err] if err
-
-      value, err = validate_datetime_format(value, schema)
-      return [nil, err] if err
-
-      [value, nil]
+      return [value, nil]
+    rescue OpenAPIParser::OpenAPIError => err
+      return [nil, err]
     end
 
     private
 
       # @param [OpenAPIParser::Schemas::Schema] schema
-      def pattern_validate(value, schema)
+      def validate_pattern(value, schema)
         # pattern support string only so put this
-        return [value, nil] unless schema.pattern
-        return [value, nil] if value =~ /#{schema.pattern}/
+        return value unless schema.pattern
+        return value if value =~ /#{schema.pattern}/
 
-        [nil, OpenAPIParser::InvalidPattern.new(value, schema.pattern, schema.object_reference, schema.example)]
+        raise OpenAPIParser::InvalidPattern.new(value, schema.pattern, schema.object_reference, schema.example)
       end
 
       def validate_max_min_length(value, schema)
-        return [nil, OpenAPIParser::MoreThanMaxLength.new(value, schema.object_reference)] if schema.maxLength && value.size > schema.maxLength
-        return [nil, OpenAPIParser::LessThanMinLength.new(value, schema.object_reference)] if schema.minLength && value.size < schema.minLength
-
-        [value, nil]
+        raise OpenAPIParser::MoreThanMaxLength.new(value, schema.object_reference) if schema.maxLength && value.size > schema.maxLength
+        raise OpenAPIParser::LessThanMinLength.new(value, schema.object_reference) if schema.minLength && value.size < schema.minLength
+        return value
       end
 
       def validate_email_format(value, schema)
-        return [value, nil] unless schema.format == 'email'
+        return value unless schema.format == 'email'
+        return value if value.match(URI::MailTo::EMAIL_REGEXP)
 
-        # match? method is good performance.
-        # So when we drop ruby 2.3 support we use match? method because this method add ruby 2.4
-        #return [value, nil] if value.match?(URI::MailTo::EMAIL_REGEXP)
-        return [value, nil] if value.match(URI::MailTo::EMAIL_REGEXP)
-
-        return [nil, OpenAPIParser::InvalidEmailFormat.new(value, schema.object_reference)]
+        raise OpenAPIParser::InvalidStringFormat.new(value, schema.object_reference, schema.format)
       end
 
       def validate_uuid_format(value, schema)
-        return [value, nil] unless schema.format == 'uuid'
+        return value unless schema.format == 'uuid'
+        return value if value.match(/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/)
 
-        return [value, nil] if value.match(/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/)
-
-        return [nil, OpenAPIParser::InvalidUUIDFormat.new(value, schema.object_reference)]
+        raise OpenAPIParser::InvalidStringFormat.new(value, schema.object_reference, schema.format)
       end
 
       def validate_uri_format(value, schema)
-        return [value, nil] unless schema.format =~ /\A(?:[a-zA-Z_]+_)?uri\z/
+        return value unless schema.format =~ /\A(?:[a-zA-Z_]+_)?uri\z/
         if schema.format.end_with?("_uri")
           protocols = schema.format.split("_")[...-1]
           protocols << "https" if protocols.any?("http")
           protocols.uniq!
         end
 
-        return [value, nil] if value.match(/\A#{URI.regexp(protocols)}\z/)
+        return value if value.match(/\A#{URI.regexp(protocols)}\z/)
 
-        return [nil, OpenAPIParser::InvalidURIFormat.new(value, schema.object_reference, protocols)]
+        raise OpenAPIParser::InvalidStringFormat.new(value, schema.object_reference, schema.format)
       end
 
       def validate_date_format(value, schema)
-        return [value, nil] unless schema.format == 'date'
+        return value unless schema.format == 'date'
 
         begin
           Date.strptime(value, "%Y-%m-%d")
         rescue ArgumentError
-          return [nil, OpenAPIParser::InvalidDateFormat.new(value, schema.object_reference)]
+          raise OpenAPIParser::InvalidStringFormat.new(value, schema.object_reference, schema.format)
         end
 
-        return [value, nil]
+        return value
       end
 
       def validate_datetime_format(value, schema)
-        return [value, nil] unless schema.format == 'date-time'
+        return value unless schema.format == 'date-time'
 
         begin
           if @datetime_coerce_class.nil?
             # validate only
             DateTime.rfc3339(value)
-            [value, nil]
+            return value
           else
             # validate and coerce
             if @datetime_coerce_class == Time
-              [DateTime.rfc3339(value).to_time, nil]
+              return DateTime.rfc3339(value).to_time
             else
-              [@datetime_coerce_class.rfc3339(value), nil]
+              return @datetime_coerce_class.rfc3339(value)
             end
           end
         rescue ArgumentError
           # when rfc3339(value) failed
-          [nil, OpenAPIParser::InvalidDateTimeFormat.new(value, schema.object_reference)]
+          raise OpenAPIParser::InvalidStringFormat.new(value, schema.object_reference, schema.format)
         end
+      end
+
+      def validate_custom_string_formats(value, schema)
+        @custom_string_formats.each do |format, regexp|
+          next unless schema.format == format
+          break if value.match(regexp)
+          raise OpenAPIParser::InvalidStringFormat.new(value, schema.object_reference, schema.format)
+        end
+
+        return value
       end
   end
 end

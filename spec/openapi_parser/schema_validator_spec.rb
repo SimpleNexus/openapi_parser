@@ -830,7 +830,7 @@ RSpec.describe OpenAPIParser::SchemaValidator do
       context 'invalid datetime raise validation error' do
         let(:params) { { 'datetime_string' => 'honoka' } }
 
-        it { expect { subject }.to raise_error(OpenAPIParser::InvalidDateTimeFormat) }
+        it { expect { subject }.to raise_error(OpenAPIParser::InvalidStringFormat) }
       end
 
       context "don't change object type" do
