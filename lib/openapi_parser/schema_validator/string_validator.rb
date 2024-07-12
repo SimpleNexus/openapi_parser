@@ -107,8 +107,9 @@ class OpenAPIParser::SchemaValidator
       end
 
       def validate_custom_string_formats(value, schema)
+        return value if schema.format.nil?
         @custom_string_formats.each do |format, regexp|
-          next unless schema.format == format
+          next unless schema.format.to_s == format.to_s
           break if value.match(regexp)
           raise OpenAPIParser::InvalidStringFormat.new(value, schema.object_reference, schema.format)
         end
