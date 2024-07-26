@@ -1,5 +1,20 @@
 ## Unreleased
 
+## 2.1.0 (2024-04-03)
+### Fixed
+* Add full-date compliant date format validation #164
+
+## 2.0.0 (2023-10-15)
+
+### Added
+
+* Support for uniqueItems in array #154
+* Fix nullable field does not work with allOf, anyOf and oneOf keyword #128
+
+### Other
+
+* Drop Ruby 2.6 Support #158
+
 ## 1.0.0 (2021-02-03)
 ### Added
 * Add date-time format validation #126
