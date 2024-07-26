@@ -35,6 +35,9 @@ class OpenAPIParser::SchemaValidator
       value, err = validate_uri_format(value, schema)
       return [nil, err] if err
 
+      value, err = validate_custom_string_formats(value, schema)
+      return [nil, err] if err
+
       [value, nil]
     end
 

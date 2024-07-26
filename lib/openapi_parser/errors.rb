@@ -173,6 +173,50 @@ module OpenAPIParser
     end
   end
 
+  class InvalidEmailFormat < OpenAPIError
+    def initialize(value, reference)
+      super(reference)
+      @value = value
+    end
+
+    def message
+      "#{@reference} email address format does not match value: #{@value.inspect}"
+    end
+  end
+
+  class InvalidUUIDFormat < OpenAPIError
+    def initialize(value, reference)
+      super(reference)
+      @value = value
+    end
+
+    def message
+      "#{@reference} Value: #{@value.inspect} is not conformant with UUID format"
+    end
+  end
+
+  class InvalidDateFormat < OpenAPIError
+    def initialize(value, reference)
+      super(reference)
+      @value = value
+    end
+
+    def message
+      "#{@reference} Value: #{@value.inspect} is not conformant with date format"
+    end
+  end
+
+  class InvalidDateTimeFormat < OpenAPIError
+    def initialize(value, reference)
+      super(reference)
+      @value = value
+    end
+
+    def message
+      "#{@reference} Value: #{@value.inspect} is not conformant with date-time format"
+    end
+  end
+
   class InvalidStringFormat < OpenAPIError
     def initialize(value, reference, format)
       super(reference)
