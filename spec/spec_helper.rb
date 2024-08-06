@@ -58,6 +58,10 @@ def petstore_with_polymorphism_schema
   load_yaml_file('./spec/data/petstore-with-polymorphism.yaml')
 end
 
+def petstore_with_cascaded_polymorphism
+  load_yaml_file('./spec/data/petstore-with-cascaded-polymorphism.yaml')
+end
+
 def json_petstore_schema_path
   './spec/data/petstore.json'
 end
