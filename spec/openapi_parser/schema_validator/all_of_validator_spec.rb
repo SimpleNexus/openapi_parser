@@ -1,9 +1,10 @@
 require_relative '../../spec_helper'
 
 RSpec.describe OpenAPIParser::Schemas::RequestBody do
-  let(:root) { OpenAPIParser.parse(petstore_with_discriminator_schema, {}) }
 
   describe 'allOf nested objects' do
+    let(:root) { OpenAPIParser.parse(petstore_with_discriminator_schema, {}) }
+
     let(:content_type) { 'application/json' }
     let(:http_method) { :post }
     let(:request_path) { '/save_the_pets' }
@@ -117,6 +118,53 @@ RSpec.describe OpenAPIParser::Schemas::RequestBody do
         expect { request_operation.validate_request_body(content_type, body) }.to raise_error do |e|
           expect(e).to be_kind_of(OpenAPIParser::NotExistRequiredKey)
           expect(e.message).to end_with("missing required parameters: head_count")
+        end
+      end
+    end
+  end
+
+  describe 'allOf cascaded objects' do
+    let(:root) { OpenAPIParser.parse(petstore_with_cascaded_polymorphism, {}) }
+
+    let(:content_type) { 'application/json' }
+    let(:http_method) { :post }
+    let(:request_path) { '/cat' }
+    let(:request_operation) { root.request_operation(http_method, request_path) }
+    let(:params) { {} }
+
+    context "with additionalProperties false" do
+      it 'passes when sending all properties' do
+        body = {
+          "name"       => "cat",
+          "petType"       => "cat",
+          "huntingSkill" => "lazy"
+        }
+        request_operation.validate_request_body(content_type, body)
+      end
+
+      it 'fails when adding additional property' do
+        body = {
+          "name"       => "cat",
+          "petType"       => "cat",
+          "huntingSkill" => "lazy",
+          "other" => true
+        }
+
+        expect { request_operation.validate_request_body(content_type, body) }.to raise_error do |e|
+          expect(e).to be_kind_of(OpenAPIParser::NotExistPropertyDefinition)
+          expect(e.message).to end_with("does not define properties: other")
+        end
+      end
+
+      it 'fails when missing required property' do
+        body = {
+          "name"       => "cat",
+          "huntingSkill" => "lazy"
+        }
+
+        expect { request_operation.validate_request_body(content_type, body) }.to raise_error do |e|
+          expect(e).to be_kind_of(OpenAPIParser::NotExistRequiredKey)
+          expect(e.message).to end_with("missing required parameters: petType")
         end
       end
     end
